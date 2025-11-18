@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import API from "./utils/api";
+import axios from "axios";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -15,20 +15,17 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // Ruta corregida
-      const response = await API.post("/api/auth/signin", { email, password });
+      const response = await axios.post("http://localhost:5000/api/auth/signin", { 
+        email, 
+        password 
+      });
       
-      console.log('Tu token es: ', response.data.token);
-      
-      // Guardar token y datos del usuario
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.data.user));
       
-      // Redirigir al dashboard
       navigate("/dashboard");
     } catch (err) {
-      console.error('Error completo:', err);
-      setError(err.response?.data?.message || "Error al iniciar sesión. Verifica tus credenciales.");
+      setError(err.response?.data?.message || "Error al iniciar sesión");
     } finally {
       setLoading(false);
     }
@@ -36,39 +33,34 @@ const Login = () => {
 
   return (
     <div style={styles.container}>
-      <div style={styles.formWrapper}>
-        <h1 style={styles.title}>Iniciar Sesión</h1>
+      <div style={styles.card}>
+        <div style={styles.header}>
+          <h1 style={styles.title}>Sistema de Ventas</h1>
+          <p style={styles.subtitle}>Iniciar Sesión</p>
+        </div>
         
         <form onSubmit={handleLogin} style={styles.form}>
           <div style={styles.inputGroup}>
-            <label htmlFor="email" style={styles.label}>
-              Correo Electrónico
-            </label>
+            <label style={styles.label}>Email</label>
             <input
-              id="email"
               type="email"
-              placeholder="tucorreo@correo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               style={styles.input}
+              placeholder="correo@ejemplo.com"
               required
-              disabled={loading}
             />
           </div>
 
           <div style={styles.inputGroup}>
-            <label htmlFor="password" style={styles.label}>
-              Contraseña
-            </label>
+            <label style={styles.label}>Contraseña</label>
             <input
-              id="password"
               type="password"
-              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               style={styles.input}
+              placeholder="••••••••"
               required
-              disabled={loading}
             />
           </div>
 
@@ -76,19 +68,12 @@ const Login = () => {
 
           <button 
             type="submit" 
-            style={{
-              ...styles.button,
-              ...(loading ? styles.buttonDisabled : {})
-            }}
+            style={loading ? {...styles.button, ...styles.buttonDisabled} : styles.button}
             disabled={loading}
           >
-            {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
+            {loading ? "Ingresando..." : "Ingresar"}
           </button>
         </form>
-
-        <p style={styles.footer}>
-          hecho por Jeremías Artiga
-        </p>
       </div>
     </div>
   );
@@ -100,82 +85,79 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#f5f5f5",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
     padding: "20px",
   },
-  formWrapper: {
-    backgroundColor: "white",
-    padding: "40px",
-    borderRadius: "12px",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+  card: {
+    background: "white",
+    borderRadius: "10px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
     maxWidth: "400px",
     width: "100%",
+    overflow: "hidden",
+  },
+  header: {
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    padding: "30px",
+    textAlign: "center",
+    color: "white",
   },
   title: {
-    fontSize: "28px",
+    margin: "0 0 10px 0",
+    fontSize: "24px",
     fontWeight: "bold",
-    marginBottom: "30px",
-    textAlign: "center",
-    color: "#333",
+  },
+  subtitle: {
+    margin: 0,
+    fontSize: "14px",
+    opacity: 0.9,
   },
   form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "20px",
+    padding: "30px",
   },
   inputGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px",
+    marginBottom: "20px",
   },
   label: {
+    display: "block",
+    marginBottom: "8px",
     fontSize: "14px",
     fontWeight: "600",
     color: "#333",
   },
   input: {
+    width: "100%",
     padding: "12px",
-    fontSize: "16px",
-    border: "1px solid #ddd",
-    borderRadius: "8px",
+    fontSize: "14px",
+    border: "2px solid #e0e0e0",
+    borderRadius: "6px",
+    boxSizing: "border-box",
     transition: "border-color 0.3s",
     outline: "none",
   },
   error: {
-    padding: "12px",
-    backgroundColor: "#fee",
+    padding: "10px",
+    background: "#fee",
     color: "#c33",
-    borderRadius: "8px",
+    borderRadius: "6px",
     fontSize: "14px",
-    textAlign: "center",
+    marginBottom: "15px",
   },
   button: {
-    padding: "12px",
+    width: "100%",
+    padding: "14px",
     fontSize: "16px",
     fontWeight: "600",
     color: "white",
-    backgroundColor: "#646cff",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
     border: "none",
-    borderRadius: "8px",
+    borderRadius: "6px",
     cursor: "pointer",
-    transition: "background-color 0.3s",
-    marginTop: "10px",
+    transition: "transform 0.2s",
   },
   buttonDisabled: {
-    backgroundColor: "#999",
+    opacity: 0.6,
     cursor: "not-allowed",
-  },
-  footer: {
-    marginTop: "20px",
-    textAlign: "center",
-    fontSize: "14px",
-    color: "#666",
-  },
-  link: {
-    color: "#646cff",
-    fontWeight: "600",
-    cursor: "pointer",
-    textDecoration: "underline",
   },
 };
 

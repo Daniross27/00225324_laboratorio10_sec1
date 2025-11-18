@@ -6,7 +6,6 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Verificar si hay un usuario logueado
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
 
@@ -27,104 +26,70 @@ const Dashboard = () => {
   const menuItems = [
     {
       title: "Clientes",
-      description: "Ver lista de todos los clientes",
       icon: "👥",
       path: "/customers",
-      color: "#646cff",
+      color: "#667eea",
     },
     {
       title: "Nueva Venta",
-      description: "Registrar una nueva venta",
       icon: "💰",
       path: "/sales/new",
-      color: "#27ae60",
+      color: "#48bb78",
     },
     {
-      title: "Lista de Ventas",
-      description: "Ver historial de ventas",
-      icon: "📊",
+      title: "Ventas",
+      icon: "📋",
       path: "/sales",
-      color: "#e67e22",
+      color: "#ed8936",
     },
     {
-      title: "Reporte de Ventas",
-      description: "Ver estadísticas por cliente",
-      icon: "📈",
+      title: "Reporte",
+      icon: "📊",
       path: "/sales/report",
-      color: "#9b59b6",
+      color: "#9f7aea",
     },
   ];
 
-  if (!user) {
-    return (
-      <div style={styles.loading}>
-        <p>Cargando...</p>
-      </div>
-    );
-  }
+  if (!user) return <div style={styles.loading}>Cargando...</div>;
 
   return (
     <div style={styles.container}>
-      {/* Header */}
-      <div style={styles.header}>
-        <div style={styles.headerContent}>
-          <div>
-            <h1 style={styles.headerTitle}>Sistema de Ventas</h1>
-            <p style={styles.headerSubtitle}>
-              Bienvenido, <strong>{user.name}</strong>
-            </p>
+      <div style={styles.navbar}>
+        <div style={styles.navContent}>
+          <h2 style={styles.navTitle}>Sistema de Ventas</h2>
+          <div style={styles.userSection}>
+            <span style={styles.userName}>{user.name}</span>
+            <button onClick={handleLogout} style={styles.logoutBtn}>
+              Salir
+            </button>
           </div>
-          <button onClick={handleLogout} style={styles.logoutButton}>
-            🚪 Cerrar Sesión
-          </button>
         </div>
       </div>
 
-      {/* Main Content */}
       <div style={styles.content}>
-        <div style={styles.welcomeCard}>
-          <h2 style={styles.welcomeTitle}>¡Bienvenido!</h2>
-          <p style={styles.welcomeText}>
-            Selecciona algo para ver los resultados
-          </p>
+        <div style={styles.welcome}>
+          <h1 style={styles.welcomeTitle}>¡Bienvenido!</h1>
+          <p style={styles.welcomeText}>Selecciona una opción del menú</p>
         </div>
 
-        {/* Menu Grid */}
         <div style={styles.grid}>
           {menuItems.map((item, index) => (
             <div
               key={index}
-              style={{
-                ...styles.card,
-                borderLeft: `4px solid ${item.color}`,
-              }}
+              style={{...styles.card, borderTop: `4px solid ${item.color}`}}
               onClick={() => navigate(item.path)}
             >
               <div style={styles.cardIcon}>{item.icon}</div>
               <h3 style={styles.cardTitle}>{item.title}</h3>
-              <p style={styles.cardDescription}>{item.description}</p>
-              <div style={styles.cardArrow}>→</div>
             </div>
           ))}
         </div>
 
-        {/* User Info Card */}
-        <div style={styles.userInfoCard}>
-          <h3 style={styles.userInfoTitle}>Información del Usuario</h3>
-          <div style={styles.userInfoContent}>
-            <div style={styles.userInfoItem}>
-              <span style={styles.userInfoLabel}>Nombre:</span>
-              <span style={styles.userInfoValue}>{user.name}</span>
-            </div>
-            <div style={styles.userInfoItem}>
-              <span style={styles.userInfoLabel}>Email:</span>
-              <span style={styles.userInfoValue}>{user.email}</span>
-            </div>
-            <div style={styles.userInfoItem}>
-              <span style={styles.userInfoLabel}>ID:</span>
-              <span style={styles.userInfoValue}>{user.id}</span>
-            </div>
-          </div>
+        <div style={styles.infoBox}>
+          <h3 style={styles.infoTitle}>Información del Usuario</h3>
+          <p style={styles.infoItem}><strong>Nombre:</strong> {user.name}</p>
+          <p style={styles.infoItem}><strong>Email:</strong> {user.email}</p>
+          <p style={styles.infoItem}><strong>ID:</strong> {user.id}</p>
         </div>
       </div>
     </div>
@@ -134,8 +99,7 @@ const Dashboard = () => {
 const styles = {
   container: {
     minHeight: "100vh",
-    width: "100%",
-    backgroundColor: "#f5f5f5",
+    background: "#f7fafc",
   },
   loading: {
     display: "flex",
@@ -143,153 +107,102 @@ const styles = {
     alignItems: "center",
     minHeight: "100vh",
     fontSize: "18px",
-    color: "#666",
   },
-  header: {
-    backgroundColor: "white",
+  navbar: {
+    background: "white",
     boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-    position: "sticky",
-    top: 0,
-    zIndex: 100,
+    padding: "15px 0",
   },
-  headerContent: {
-    padding: "20px",
+  navContent: {
+    maxWidth: "1200px",
+    margin: "0 auto",
+    padding: "0 20px",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    flexWrap: "wrap",
+  },
+  navTitle: {
+    margin: 0,
+    fontSize: "22px",
+    color: "#2d3748",
+  },
+  userSection: {
+    display: "flex",
+    alignItems: "center",
     gap: "15px",
   },
-  headerTitle: {
-    fontSize: "24px",
-    fontWeight: "bold",
-    color: "#333",
-    margin: 0,
-  },
-  headerSubtitle: {
+  userName: {
     fontSize: "14px",
-    color: "#666",
-    margin: "5px 0 0 0",
+    color: "#4a5568",
   },
-  logoutButton: {
-    padding: "10px 20px",
-    backgroundColor: "#e74c3c",
+  logoutBtn: {
+    padding: "8px 16px",
+    background: "#fc8181",
     color: "white",
     border: "none",
-    borderRadius: "8px",
+    borderRadius: "6px",
     cursor: "pointer",
     fontSize: "14px",
-    fontWeight: "600",
-    transition: "background-color 0.3s",
   },
   content: {
+    maxWidth: "1200px",
+    margin: "0 auto",
     padding: "30px 20px",
   },
-  welcomeCard: {
-    backgroundColor: "white",
-    padding: "30px",
-    borderRadius: "12px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-    marginBottom: "30px",
+  welcome: {
     textAlign: "center",
+    marginBottom: "40px",
   },
   welcomeTitle: {
-    fontSize: "28px",
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: "10px",
+    fontSize: "32px",
+    margin: "0 0 10px 0",
+    color: "#2d3748",
   },
   welcomeText: {
     fontSize: "16px",
-    color: "#666",
+    color: "#718096",
+    margin: 0,
   },
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
     gap: "20px",
     marginBottom: "30px",
   },
   card: {
-    backgroundColor: "white",
-    padding: "25px",
-    borderRadius: "12px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+    background: "white",
+    padding: "30px",
+    borderRadius: "8px",
+    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
     cursor: "pointer",
-    transition: "transform 0.3s, box-shadow 0.3s",
-    position: "relative",
+    transition: "transform 0.2s, box-shadow 0.2s",
+    textAlign: "center",
   },
   cardIcon: {
     fontSize: "48px",
     marginBottom: "15px",
   },
   cardTitle: {
-    fontSize: "20px",
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: "8px",
+    margin: 0,
+    fontSize: "18px",
+    color: "#2d3748",
   },
-  cardDescription: {
-    fontSize: "14px",
-    color: "#666",
-    marginBottom: "15px",
-  },
-  cardArrow: {
-    position: "absolute",
-    bottom: "20px",
-    right: "20px",
-    fontSize: "24px",
-    color: "#646cff",
-    fontWeight: "bold",
-  },
-  userInfoCard: {
-    backgroundColor: "white",
+  infoBox: {
+    background: "white",
     padding: "25px",
-    borderRadius: "12px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-  },
-  userInfoTitle: {
-    fontSize: "20px",
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: "20px",
-  },
-  userInfoContent: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "15px",
-  },
-  userInfoItem: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "10px",
-    backgroundColor: "#f9f9f9",
     borderRadius: "8px",
+    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
   },
-  userInfoLabel: {
-    fontSize: "14px",
-    fontWeight: "600",
-    color: "#666",
+  infoTitle: {
+    margin: "0 0 15px 0",
+    fontSize: "18px",
+    color: "#2d3748",
   },
-  userInfoValue: {
+  infoItem: {
+    margin: "8px 0",
     fontSize: "14px",
-    color: "#333",
+    color: "#4a5568",
   },
 };
-
-// Agregar efecto hover con JavaScript
-if (typeof document !== "undefined") {
-  const styleSheet = document.createElement("style");
-  styleSheet.textContent = `
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
-    }
-    .logout-button:hover {
-      background-color: #c0392b !important;
-    }
-  `;
-  document.head.appendChild(styleSheet);
-}
 
 export default Dashboard;

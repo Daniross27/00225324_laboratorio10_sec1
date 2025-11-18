@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const SalesList = () => {
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchSales();
@@ -20,8 +22,7 @@ const SalesList = () => {
       }
       setError("");
     } catch (err) {
-      console.error("Error obteniendo ventas:", err);
-      setError(err.response?.data?.message || "Error al cargar las ventas");
+      setError("Error al cargar las ventas");
     } finally {
       setLoading(false);
     }
@@ -31,7 +32,7 @@ const SalesList = () => {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-ES', {
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
@@ -45,52 +46,44 @@ const SalesList = () => {
     }).format(amount);
   };
 
-  if (loading) {
-    return (
-      <div style={styles.container}>
-        <div style={styles.loading}>Cargando ventas...</div>
-      </div>
-    );
-  }
+  const getTotalAmount = () => {
+    return sales.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
+  };
 
-  if (error) {
-    return (
-      <div style={styles.container}>
-        <div style={styles.error}>{error}</div>
-        <button onClick={fetchSales} style={styles.retryButton}>
-          Reintentar
-        </button>
-      </div>
-    );
-  }
+  if (loading) return <div style={styles.loading}>Cargando ventas...</div>;
 
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <h2 style={styles.title}>Lista de Ventas</h2>
-        <button onClick={fetchSales} style={styles.refreshButton}>
+        <button onClick={() => navigate("/dashboard")} style={styles.backBtn}>
+          ← Volver
+        </button>
+        <h1 style={styles.title}>Lista de Ventas</h1>
+        <button onClick={fetchSales} style={styles.refreshBtn}>
           🔄 Actualizar
         </button>
       </div>
-      
+
+      {error && <div style={styles.error}>{error}</div>}
+
       {sales.length === 0 ? (
-        <p style={styles.noData}>No hay ventas registradas</p>
+        <div style={styles.noData}>No hay ventas registradas</div>
       ) : (
         <>
-          <div style={styles.tableContainer}>
+          <div style={styles.tableWrapper}>
             <table style={styles.table}>
-              <thead>
-                <tr style={styles.headerRow}>
-                  <th style={styles.th}>ID Venta</th>
+              <thead style={styles.thead}>
+                <tr>
+                  <th style={styles.th}>ID</th>
                   <th style={styles.th}>Cliente</th>
-                  <th style={styles.th}>Código Cliente</th>
+                  <th style={styles.th}>Código</th>
                   <th style={styles.th}>Monto</th>
                   <th style={styles.th}>Fecha</th>
                 </tr>
               </thead>
               <tbody>
                 {sales.map((sale) => (
-                  <tr key={sale.id} style={styles.row}>
+                  <tr key={sale.id} style={styles.tr}>
                     <td style={styles.td}>#{sale.id}</td>
                     <td style={styles.td}>{sale.customer_name}</td>
                     <td style={styles.td}>{sale.customer_code}</td>
@@ -103,15 +96,13 @@ const SalesList = () => {
               </tbody>
             </table>
           </div>
-          
+
           <div style={styles.footer}>
-            <div style={styles.footerItem}>
+            <div>
               <strong>Total de ventas:</strong> {sales.length}
             </div>
-            <div style={styles.footerItem}>
-              <strong>Monto total:</strong> {formatAmount(
-                sales.reduce((sum, sale) => sum + parseFloat(sale.amount), 0)
-              )}
+            <div>
+              <strong>Monto total:</strong> {formatAmount(getTotalAmount())}
             </div>
           </div>
         </>
@@ -122,111 +113,108 @@ const SalesList = () => {
 
 const styles = {
   container: {
+    minHeight: "100vh",
+    background: "#f7fafc",
     padding: "20px",
-    maxWidth: "1200px",
-    margin: "0 auto",
-  },
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "20px",
-  },
-  title: {
-    fontSize: "28px",
-    fontWeight: "bold",
-    color: "#333",
-    margin: 0,
-  },
-  refreshButton: {
-    padding: "10px 20px",
-    backgroundColor: "#646cff",
-    color: "white",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "14px",
-    fontWeight: "500",
-    transition: "background-color 0.3s",
   },
   loading: {
-    textAlign: "center",
-    padding: "40px",
-    fontSize: "18px",
-    color: "#666",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    minHeight: "100vh",
   },
-  error: {
-    padding: "15px",
-    backgroundColor: "#fee",
-    color: "#c33",
-    borderRadius: "8px",
-    marginBottom: "15px",
+  header: {
+    maxWidth: "1200px",
+    margin: "0 auto 30px",
+    display: "flex",
+    alignItems: "center",
+    gap: "20px",
   },
-  retryButton: {
+  backBtn: {
     padding: "10px 20px",
-    backgroundColor: "#646cff",
+    background: "#4a5568",
     color: "white",
     border: "none",
-    borderRadius: "8px",
+    borderRadius: "6px",
     cursor: "pointer",
-    fontSize: "16px",
+    fontSize: "14px",
+  },
+  refreshBtn: {
+    padding: "10px 20px",
+    background: "#667eea",
+    color: "white",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+    fontSize: "14px",
+    marginLeft: "auto",
+  },
+  title: {
+    margin: 0,
+    fontSize: "28px",
+    color: "#2d3748",
+  },
+  error: {
+    maxWidth: "1200px",
+    margin: "0 auto 20px",
+    padding: "15px",
+    background: "#fee",
+    color: "#c33",
+    borderRadius: "6px",
   },
   noData: {
-    textAlign: "center",
+    maxWidth: "1200px",
+    margin: "0 auto",
     padding: "40px",
-    color: "#666",
-    fontSize: "16px",
-    backgroundColor: "white",
+    background: "white",
     borderRadius: "8px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+    textAlign: "center",
+    color: "#718096",
   },
-  tableContainer: {
-    overflowX: "auto",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+  tableWrapper: {
+    maxWidth: "1200px",
+    margin: "0 auto",
+    background: "white",
     borderRadius: "8px",
+    overflow: "hidden",
+    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
   },
   table: {
     width: "100%",
     borderCollapse: "collapse",
-    backgroundColor: "white",
   },
-  headerRow: {
-    backgroundColor: "#646cff",
+  thead: {
+    background: "#667eea",
     color: "white",
   },
   th: {
     padding: "15px",
     textAlign: "left",
-    fontWeight: "600",
     fontSize: "14px",
-    textTransform: "uppercase",
+    fontWeight: "600",
   },
-  row: {
-    borderBottom: "1px solid #eee",
-    transition: "background-color 0.2s",
+  tr: {
+    borderBottom: "1px solid #e2e8f0",
   },
   td: {
     padding: "15px",
     fontSize: "14px",
-    color: "#333",
+    color: "#4a5568",
   },
   amount: {
     fontWeight: "600",
-    color: "#27ae60",
+    color: "#48bb78",
   },
   footer: {
-    marginTop: "20px",
-    padding: "15px 20px",
-    backgroundColor: "#f5f5f5",
-    borderRadius: "8px",
+    maxWidth: "1200px",
+    margin: "20px auto 0",
+    padding: "15px",
+    background: "white",
+    borderRadius: "6px",
     display: "flex",
     justifyContent: "space-between",
-    flexWrap: "wrap",
-    gap: "15px",
-  },
-  footerItem: {
-    fontSize: "16px",
-    color: "#666",
+    fontSize: "14px",
+    color: "#4a5568",
   },
 };
 
